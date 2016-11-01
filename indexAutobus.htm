@@ -1,0 +1,28 @@
+<html>
+	<head>
+		<script type="text/javascript" src="libs/glge.js"></script>
+	</head>
+	<body style="text-align: center;">
+		<canvas id="canvas" width="640" height="480" style="outline:1px solid blue; margin:auto;"></canvas>
+
+		<script type="text/javascript">
+
+			var canvasElement = document.getElementById("canvas");
+			var doc = new GLGE.Document();
+
+			doc.onLoad = function() {
+				var renderer = new GLGE.Renderer(canvasElement);
+				var scene = new GLGE.Scene();
+				scene = doc.getElement("mainscene");
+				renderer.setScene(scene);
+	
+				setInterval(function(){renderer.render()}, 33);
+			}
+
+			// Begin everything:
+			doc.load("scene.xml");
+
+		</script>
+
+	</body>
+</html>

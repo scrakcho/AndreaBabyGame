@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js - NaCx0</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<script src="libs/jquery-3.1.1.min.js"></script>
+		<script src="libs/angular.min.js"></script>
+		<script src="libs/three.min.js"></script>
+		<script src="libs/OrbitControls.js"></script>		
+		<script src="libs/PointerLockControls.js"></script>
+		<script src="libs/Character.js"></script>
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #f0f0f0;
+				margin: 0px;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="lienzo"></div>		
+		<script>
+			$( document ).ready(function() {
+				WIDTH = window.innerWidth; // Ancho de pantalla
+				HEIGHT = window.innerHeight; // Alto de pantalla  
+				// Lienzo u objeto encargado del renderizado
+				var lienzo = new THREE.WebGLRenderer();
+				// Establecemos las dimensiones del lienzo
+				lienzo.setSize(
+					WIDTH,
+					HEIGHT
+				);
+				// Añadimos el lienzo a la página
+				$(lienzo.domElement).appendTo( $('#lienzo') );
+				
+				// Creamos la escena
+				var escena = new THREE.Scene;
+				
+				// TEXTURE LOADER
+				var textureLoader = new THREE.TextureLoader();
+				
+				
+				
+				// Creamos el suelo
+				function createFloor() {
+				  geometry = new THREE.PlaneGeometry(1000, 1000, 1, 1);
+				  geometry.applyMatrix(new THREE.Matrix4().makeRotationX(- Math.PI/2));
+				  var texture = textureLoader.load('textures/Grass.jpg');
+				  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+				  texture.repeat.set(64, 64);
+				  material = new THREE.MeshBasicMaterial({ color: 0xffffff, map: texture });
+				  var suelo = new THREE.Mesh(geometry, material);
+				  /*suelo.position.x = 0;*/
+				  suelo.position.y = 0;
+				  return suelo;
+				}
+				var floor = createFloor();
+				escena.add(floor);
+				
+				
+				
+				//Texturas para el prisma
+				var textura = new THREE.MeshLambertMaterial({
+					map: textureLoader.load('textures/brick_diffuse.jpg')
+				});
+				var cara = new THREE.MeshLambertMaterial({
+					map: textureLoader.load('textures/face.jpg')
+				});
+				var leftSide  = textura;
+				var rightSide = textura;
+				var topSide   = textura;
+				var bottomSide= textura;
+				var frontSide = cara;
+				var backSide  = textura;
+				var materials = [
+					leftSide,        // Left side
+					rightSide,       // Right side
+					topSide,         // Top side
+					bottomSide,      // Bottom side
+					frontSide,       // Front side
+					backSide         // Back side
+				];
+				// Creamos un prisma
+				var geometriaCubo = new THREE.CubeGeometry(
+					20, // Dimensiones en eje X
+					40, // Dimensiones en eje Y
+					20, // Dimensiones en eje Z
+					1,
+					1,
+					1
+				);
+				// Creamos una apariencia (de lila claro)
+				/*var aparienciaLila = new THREE.MeshLambertMaterial({
+					color: 0x9999FF // Color hexadecimal
+				}); */				
+				var aparienciaLadrillos = new THREE.MeshFaceMaterial( materials );
+				
+				// Generamos el prisma y le aplicamos la apariencia
+				var cubo = new THREE.Mesh(geometriaCubo, aparienciaLadrillos);
+				cubo.position.y = 0;
+				// Añadimos el cubo a la escena
+				//escena.add(cubo);
+				
+				
+				
+				
+				// Creamos una par de focos de luz
+				var luz1 = new THREE.PointLight(0xff0044); // Rojizo
+				luz1.position.set(
+					80, // Posición en eje X
+					130, // Posición en eje Y
+					-50 // Posición en eje Z
+				);				  
+				var luz2 = new THREE.PointLight(0x4499ff); // Azulado
+				luz2.position.set(
+					-50, // Posición en eje X
+					50, // Posición en eje Y
+					-100 // Posición en eje Z
+				);				  
+				// Añadimos las luces
+				escena.add(luz1);
+				escena.add(luz2);
+				
+				//Movimiento				
+				//var controls = new THREE.OrbitControls( camara );
+				//controls.addEventListener( 'change', lienzo );
+				
+				
+				//Personaje
+				// Create the user's character
+				var user = Character({
+					color: 0xF5AD6F
+				});
+				escena.add(user);
+				
+				
+				//Controles
+				var setControls = function (player) {
+					var user = player,
+						// State of the different controls
+						controls = {
+							left: false,
+							up: false,
+							right: false,
+							down: false
+						};
+					// When the user presses a key 
+					jQuery(document).keydown(function (e) {
+						var prevent = true;
+						// Update the state of the attached control to "true"
+						switch (e.keyCode) {
+							case 37:
+								controls.left = true;
+								break;
+							case 38:
+								controls.up = true;
+								break;
+							case 39:
+								controls.right = true;
+								break;
+							case 40:
+								controls.down = true;
+								break;
+							default:
+								prevent = false;
+						}
+						// Avoid the browser to react unexpectedly
+						if (prevent) {
+							e.preventDefault();
+						} else {
+							return;
+						}
+						// Update the character's direction
+						CharacterSetDirection(user,controls);						
+						CharacterMotion(user,camara);
+					});
+					// When the user releases a key
+					jQuery(document).keyup(function (e) {
+						var prevent = true;
+						// Update the state of the attached control to "false"
+						switch (e.keyCode) {
+							case 37:
+								controls.left = false;
+								break;
+							case 38:
+								controls.up = false;
+								break;
+							case 39:
+								controls.right = false;
+								break;
+							case 40:
+								controls.down = false;
+								break;
+							default:
+								prevent = false;
+						}
+						// Avoid the browser to react unexpectedly
+						if (prevent) {
+							e.preventDefault();
+						} else {
+							return;
+						}
+						// Update the character's direction
+						//CharacterSetDirection(user,controls);
+						//CharacterMotion(user);
+					});
+					// On resize
+					/*jQuery(window).resize(function () {
+						// Redefine the size of the renderer
+						basicScene.setAspect();
+					});*/
+				}
+				setControls(user);
+				
+				//user.setFocus(this.user.mesh);
+				
+				
+				// Generamos la cámara
+				var camara = new THREE.PerspectiveCamera(
+					45, // Campo de visión
+					(WIDTH / HEIGHT), // Proporcion
+					0.1,
+					10000 // Campo de visión
+				);			  
+				// Situamos la cámara
+				camara.position.y = 35; // Elevamos la cámara
+				camara.position.z = -50; // Alejamos la cámara
+				// Centramos la vista en el cubo
+				camara.lookAt(user.position);			  
+				// Añadimos la cámara a la escena
+				escena.add(camara);
+				
+				
+				
+				
+				
+				
+				
+				x=0; // Lo usamos para la oscilación  
+				function renderizar(){
+					// Rotamos el cubo
+					//cubo.rotation.y += Math.PI * 0.5 / 180; // Ángulo en radianes
+					//cubo.rotation.z += Math.PI * Math.cos(x++ / 50) / 180;
+					// Renderizamos la escena
+					lienzo.render(escena, camara);
+					// Volvemos a renderizar
+					requestAnimationFrame(renderizar);
+				}				  
+				// Empezamos a renderizar
+				renderizar();
+			});
+			
+		</script>
+	</body>
+</html>
