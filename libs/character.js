@@ -5,18 +5,33 @@ var Character = function(args){
 	function create(args){
         'use strict';
         // Set the different geometries composing the humanoid
-        var head = new THREE.SphereGeometry(8, 8, 8),
+        var head = new THREE.SphereGeometry(8, 8, 8, 0, Math.PI * 2, 0, Math.PI * 1),
+			body = new THREE.CubeGeometry(16, 8, 16),
             hand = new THREE.SphereGeometry(2, 1, 1),
             foot = new THREE.SphereGeometry(4, 1, 1, 0, Math.PI * 2, 0, Math.PI / 2),
             nose = new THREE.SphereGeometry(1, 1, 1),
             // Set the material, the "skin"
-            material = new THREE.MeshLambertMaterial(args);
+            material = new THREE.MeshLambertMaterial(args),
+			materialPañal = new THREE.MeshPhongMaterial({color: 0xFFFFFF,emissive: 0x524e4e,specular: 0x000000,shininess: 100,shading: 'THREE.SmoothShading'});
         // Set the character modelisation object
 		character = new THREE.Object3D();
         character.position.y = 10;
-        // Set and add its head
+        
+		// Set and add its head		
         head = new THREE.Mesh(head, material);
         head.position.y = 0;
+		body = new THREE.Mesh(body, materialPañal);
+		body.position.y = -6;
+		
+		var headBSP = new ThreeBSP(head);
+		var bodyBSP = new ThreeBSP(body);
+		var head = headBSP.subtract(bodyBSP);		
+		var head = head.toMesh(material);
+		var body = headBSP.intersect(bodyBSP);
+		var body = body.toMesh(materialPañal); 
+		character.add(body);
+		
+		//character.add(body);
         character.add(head);
         // Set and add its hands
         hands = {

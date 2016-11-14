@@ -10,6 +10,9 @@
 		<script src="libs/OrbitControls.js"></script>		
 		<script src="libs/PointerLockControls.js"></script>
 		<script src="libs/Character.js"></script>
+		<script src="libs/csg.js"></script>
+		<script src="libs/ThreeCSG.js"></script>
+		
 		<style>
 			body {
 				font-family: Monospace;
@@ -123,9 +126,10 @@
 				escena.add(luz1);
 				escena.add(luz2);
 				
-				//Movimiento				
-				//var controls = new THREE.OrbitControls( camara );
-				//controls.addEventListener( 'change', lienzo );
+				
+				
+				
+				
 				
 				
 				//Personaje
@@ -217,6 +221,9 @@
 				//user.setFocus(this.user.mesh);
 				
 				
+				
+				
+				
 				// Generamos la cámara
 				var camara = new THREE.PerspectiveCamera(
 					45, // Campo de visión
@@ -233,8 +240,9 @@
 				escena.add(camara);
 				
 				
-				
-				
+				//Movimiento				
+				var controls = new THREE.OrbitControls( camara );
+				controls.addEventListener( 'change', camara );
 				
 				
 				
