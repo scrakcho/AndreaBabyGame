@@ -110,17 +110,17 @@
 				
 				
 				// Creamos una par de focos de luz
-				var luz1 = new THREE.PointLight(0xff0044); // Rojizo
+				var luz1 = new THREE.PointLight(0x3d3d3d); // Blanco
 				luz1.position.set(
 					80, // Posición en eje X
 					130, // Posición en eje Y
 					-50 // Posición en eje Z
 				);				  
-				var luz2 = new THREE.PointLight(0x4499ff); // Azulado
+				var luz2 = new THREE.PointLight(0xffffff); // Blanco
 				luz2.position.set(
 					-50, // Posición en eje X
 					50, // Posición en eje Y
-					-100 // Posición en eje Z
+					100 // Posición en eje Z
 				);				  
 				// Añadimos las luces
 				escena.add(luz1);
@@ -226,14 +226,14 @@
 				
 				// Generamos la cámara
 				var camara = new THREE.PerspectiveCamera(
-					45, // Campo de visión
+					90, // Campo de visión
 					(WIDTH / HEIGHT), // Proporcion
 					0.1,
 					10000 // Campo de visión
 				);			  
 				// Situamos la cámara
 				camara.position.y = 35; // Elevamos la cámara
-				camara.position.z = -50; // Alejamos la cámara
+				camara.position.z = 70; // Alejamos la cámara
 				// Centramos la vista en el cubo
 				camara.lookAt(user.position);			  
 				// Añadimos la cámara a la escena
