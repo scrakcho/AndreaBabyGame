@@ -1,6 +1,6 @@
 var step = 0;
 var direction = new THREE.Vector3(0, 0, 0);
-var hands, feet;
+var hands, feet, irisLeft, irisRight;
 var Character = function(args){
 	function create(args){
         'use strict';
@@ -49,16 +49,16 @@ var Character = function(args){
 		eyes.right.position.y = 4;
 		eyes.right.position.x = 5;
 		eyes.right.position.z = 14;
-		eyes.right.rotation.z = Math.PI / -14;
+		eyes.right.rotation.z = Math.PI / -14;		
 		character.add(eyes.left);
 		character.add(eyes.right);
-		var irisLeft = new THREE.Mesh(iris, materialNegro);
+		irisLeft = new THREE.Mesh(iris, materialNegro);
 		irisLeft.rotation.x = Math.PI / 2;		
 		irisLeft.position.y = 3,5;
 		irisLeft.position.x = -4,5;
 		irisLeft.position.z = 15;
 		irisLeft.rotation.z = Math.PI / 14;
-		var irisRight = new THREE.Mesh(iris, materialNegro);
+		irisRight = new THREE.Mesh(iris, materialNegro);
 		irisRight.rotation.x = Math.PI / 2;		
 		irisRight.position.y = 3,5;
 		irisRight.position.x = 4,5;
@@ -112,12 +112,14 @@ var Character = function(args){
 var CharacterSetDirection = function(character,controls){
 	// Either left or right, and either up or down (no jump or dive (on the Y axis), so far ...)
 	var x = controls.left ? 1 : controls.right ? -1 : 0,
-		y = 0,
+		y = controls.jump ? 1 : 0,
 		z = controls.up ? 1 : controls.down ? -1 : 0;
-	direction.set(x, y, z);
+	direction.set(x, 0, z);//lookAt not must Y rotate 
 	var pos = new THREE.Vector3();
 	pos.addVectors(direction, character.position);
 	character.lookAt(pos);
+	
+	direction.set(x, y, z);//Set real direction
 	
 	return character;
 }
@@ -126,6 +128,10 @@ var CharacterSetDirection = function(character,controls){
 var CharacterMotion = function(character,camara){
 	//console.log(direction);	
 	if (direction.x !== 0 || direction.z !== 0) {
+		// Jump the character
+		if(direction.y !== 0){
+			CharacterJump(character);
+		}
 		// Rotate the character
 		CharacterRotate(character);
 		// And, only if we're not colliding with an obstacle or a wall ...
@@ -135,6 +141,8 @@ var CharacterMotion = function(character,camara){
 		// ... we move the character
 		CharacterMove(character,camara);
 		return true;
+	}else if(direction.y !== 0){
+		CharacterJump(character);
 	}
 }    
 var CharacterRotate = function(character){
@@ -172,7 +180,51 @@ var CharacterMove = function(character,camara){
 	hands.left.position.setZ(Math.cos(step + (Math.PI / 2)) * 4);
 	hands.right.position.setZ(Math.sin(step) * 4);
 	
-} 
+}
+var CharacterJump = function(character){
+	//irisLeft.position.y = 3,5;
+	//irisRight.position.y = 3,5;
+	irisLeft.position.y = 5,5;
+	irisRight.position.y = 5,5;
+	
+	jump = function(positionY){
+		setTimeout(function(positionY){
+			positionY += 2;	
+			if(positionY < 40){
+				jump(positionY);
+			}else{
+				fall(positionY);
+			}
+		}, 100);		
+	};
+	fall = function(positionY){
+		setTimeout(function(positionY){
+			positionY -= 2;	
+			if(positionY == 20){
+				//jump(positionY);
+			}else{
+				fall(positionY);
+			}
+		}, 100);
+	};
+	
+	if(character.position.y == 20){//Is in the floor so can jump
+		jump(character.position.y);		
+	}
+	
+	/*character.position.x += direction.x * ((direction.z === 0) ? 4 : Math.sqrt(8));
+	character.position.z += direction.z * ((direction.x === 0) ? 4 : Math.sqrt(8));
+	camara.position.x += direction.x * ((direction.z === 0) ? 4 : Math.sqrt(8));
+	camara.position.z += direction.z * ((direction.x === 0) ? 4 : Math.sqrt(8));
+	// Now let's use Sine and Cosine curves, using our "step" property ...
+	step += 1 / 2;
+	// ... to slightly move our feet and hands
+	feet.left.position.setZ(Math.sin(step) * 8);
+	feet.right.position.setZ(Math.cos(step + (Math.PI / 2)) * 8);
+	hands.left.position.setZ(Math.cos(step + (Math.PI / 2)) * 4);
+	hands.right.position.setZ(Math.sin(step) * 4);*/
+	
+}  
 var CharacterCollide = function(character){
 	// INSERT SOME MAGIC HERE
     return false;

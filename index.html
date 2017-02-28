@@ -7,7 +7,7 @@
 		<script src="libs/jquery-3.1.1.min.js"></script>
 		<script src="libs/angular.min.js"></script>
 		<script src="libs/three.min.js"></script>
-		<script src="libs/OrbitControls.js"></script>		
+		<script src="libs/OrbitControls - NaCx0.js"></script>		
 		<script src="libs/PointerLockControls.js"></script>
 		<script src="libs/Character.js"></script>
 		<script src="libs/csg.js"></script>
@@ -148,24 +148,29 @@
 							left: false,
 							up: false,
 							right: false,
-							down: false
+							down: false,
+							jump: false							
 						};
 					// When the user presses a key 
 					jQuery(document).keydown(function (e) {
 						var prevent = true;
 						// Update the state of the attached control to "true"
+						console.log(e.keyCode);
 						switch (e.keyCode) {
+							case 32:
+								controls.jump = true;
+								break;
 							case 37:
-								controls.left = true;
-								break;
-							case 38:
-								controls.up = true;
-								break;
-							case 39:
 								controls.right = true;
 								break;
-							case 40:
+							case 38:
 								controls.down = true;
+								break;
+							case 39:
+								controls.left = true;
+								break;
+							case 40:
+								controls.up = true;
 								break;
 							default:
 								prevent = false;
@@ -184,18 +189,21 @@
 					jQuery(document).keyup(function (e) {
 						var prevent = true;
 						// Update the state of the attached control to "false"
-						switch (e.keyCode) {
+						switch (e.keyCode) {							
+							case 32:
+								controls.jump = false;
+								break;
 							case 37:
-								controls.left = false;
-								break;
-							case 38:
-								controls.up = false;
-								break;
-							case 39:
 								controls.right = false;
 								break;
-							case 40:
+							case 38:
 								controls.down = false;
+								break;
+							case 39:
+								controls.left = false;
+								break;
+							case 40:
+								controls.up = false;
 								break;
 							default:
 								prevent = false;
